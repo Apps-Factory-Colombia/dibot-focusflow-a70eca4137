@@ -5,4 +5,4 @@ RUN bun install --frozen-lockfile
 COPY . .
 RUN bun run build
 EXPOSE 8787
-CMD ["bun", "run", "preview", "--", "--host", "0.0.0.0", "--port", "8787"]
+CMD ["bun", "run", "start"]
