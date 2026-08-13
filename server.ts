@@ -1,21 +1,30 @@
 import { join, normalize, resolve } from 'node:path'
 
-const port = Number(process.env.API_PORT ?? 8787)
+const configuredPort = Number(process.env.API_PORT ?? 8787)
+const port = Number.isInteger(configuredPort) && configuredPort > 0 ? configuredPort : 8787
 const distRoot = resolve(process.cwd(), 'dist')
 
 const jsonHeaders = { 'Content-Type': 'application/json; charset=utf-8' }
+const corsHeaders = {
+  ...jsonHeaders,
+  'Access-Control-Allow-Origin': process.env.CORS_ORIGIN ?? '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET,POST,PATCH,DELETE,OPTIONS',
+}
 
 function jsonError(message: string, status = 500) {
   return new Response(JSON.stringify({ error: message }), {
     status,
-    headers: jsonHeaders,
+    headers: corsHeaders,
   })
 }
 
 async function apiResponse(request: Request, pathname: string) {
   try {
+    if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: corsHeaders })
+
     if (pathname === '/api/health' && request.method === 'GET') {
-      return Response.json({ ok: true })
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: corsHeaders })
     }
 
     if (pathname === '/api/tasks') {
@@ -36,7 +45,12 @@ async function apiResponse(request: Request, pathname: string) {
 }
 
 async function staticResponse(pathname: string) {
-  const requestedPath = pathname === '/' ? '/index.html' : pathname
+  let requestedPath = pathname === '/' ? '/index.html' : pathname
+  try {
+    requestedPath = decodeURIComponent(requestedPath)
+  } catch {
+    return new Response('Not found', { status: 404 })
+  }
   const filePath = normalize(join(distRoot, requestedPath))
   const insideDist = filePath === distRoot || filePath.startsWith(`${distRoot}/`)
 
@@ -58,7 +72,12 @@ const server = Bun.serve({
   port,
   async fetch(request) {
     const url = new URL(request.url)
-    if (url.pathname.startsWith('/api/')) return apiResponse(request, url.pathname)
+    if (url.pathname.startsWith('/api/')) {
+      const response = await apiResponse(request, url.pathname)
+      const headers = new Headers(response.headers)
+      Object.entries(corsHeaders).forEach(([key, value]) => headers.set(key, value))
+      return new Response(response.body, { status: response.status, headers })
+    }
     return staticResponse(url.pathname)
   },
 })

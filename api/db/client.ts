@@ -2,12 +2,21 @@ import 'dotenv/config'
 import { createClient } from '@libsql/client'
 import { drizzle } from 'drizzle-orm/libsql'
 
-const url = process.env.TURSO_DATABASE_URL
-const authToken = process.env.TURSO_AUTH_TOKEN
+let database: ReturnType<typeof drizzle> | undefined
 
-if (!url || !authToken) {
-  throw new Error('Missing TURSO_DATABASE_URL or TURSO_AUTH_TOKEN. Configure the server environment first.')
+/**
+ * Keep Turso configuration server-only and lazy. This lets /api/health work
+ * during container boot before the platform has injected database secrets.
+ */
+export function getDb() {
+  if (database) return database
+
+  const url = process.env.TURSO_DATABASE_URL
+  const authToken = process.env.TURSO_AUTH_TOKEN
+  if (!url || !authToken) {
+    throw new Error('Missing TURSO_DATABASE_URL or TURSO_AUTH_TOKEN. Configure the server environment first.')
+  }
+
+  database = drizzle({ client: createClient({ url, authToken }) })
+  return database
 }
-
-export const tursoClient = createClient({ url, authToken })
-export const db = drizzle({ client: tursoClient })
