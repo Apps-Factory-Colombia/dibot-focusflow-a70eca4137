@@ -55,8 +55,7 @@ async function check() {
 }
 
 async function writeRuntimeEnv(values: Record<string, string>) {
-  let current = ''
-  try { current = await readFile('.env', 'utf8') } catch { current = '' }
+  const current = await readFile('.env', 'utf8').catch(() => '')
   const lines = current.split(/\r?\n/)
   for (const [key, value] of Object.entries(values)) {
     const pattern = new RegExp(`^\\s*${key}=`)

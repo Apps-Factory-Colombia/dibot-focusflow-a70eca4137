@@ -1,0 +1,1 @@
+-- FocusFlow intentionally starts with an empty user-owned task list.
