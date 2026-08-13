@@ -17,3 +17,6 @@ CREATE TABLE IF NOT EXISTS focus_sessions (
   duration_seconds INTEGER NOT NULL DEFAULT 1500,
   status TEXT NOT NULL DEFAULT 'completed'
 );
+
+CREATE INDEX IF NOT EXISTS tasks_created_at_idx ON tasks(created_at);
+CREATE INDEX IF NOT EXISTS focus_sessions_task_id_idx ON focus_sessions(task_id);

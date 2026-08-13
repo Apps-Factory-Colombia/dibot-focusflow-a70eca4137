@@ -1,0 +1,6 @@
+Politica de automatizacion de Dibot:
+El workflow externo es el unico responsable de Turso: crea o reutiliza la base, aplica el SQL canonico, valida el schema live y publica las credenciales de runtime.
+No ejecutes bun run db:create, bun run db:push, bun run db:migrate ni llames directamente a la API de Turso.
+No te detengas por falta de credenciales Turso durante la implementacion; deja las migraciones canonicas y el acceso server-side listo para que el workflow las sincronice despues.
+Concentrate en UI, API, server, schema y seed. El workflow externo ejecuta typecheck, build, lint y test después de la implementación.
+No leas, imprimas ni copies secretos desde .env y no agregues archivos .dibot temporales al repositorio.
