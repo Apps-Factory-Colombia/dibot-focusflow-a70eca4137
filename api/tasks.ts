@@ -40,12 +40,14 @@ export async function handleTasksRequest(request: Request) {
   if (request.method === 'GET') return Response.json(await listTasks())
   if (request.method === 'POST') {
     const input = await request.json() as { id: string; title: string; description?: string; isPrimary?: boolean }
+    if (!input.id || !input.title?.trim()) return Response.json({ error: 'Task id and title are required' }, { status: 400 })
     return Response.json(await createTask(input), { status: 201 })
   }
   if (request.method === 'PATCH') {
     const id = url.searchParams.get('id')
     if (!id) return Response.json({ error: 'Missing task id' }, { status: 400 })
     const body = await request.json() as { completed: boolean }
+    if (typeof body.completed !== 'boolean') return Response.json({ error: 'Completed must be boolean' }, { status: 400 })
     return Response.json(await setTaskCompleted(id, body.completed))
   }
   if (request.method === 'DELETE') {
@@ -60,5 +62,6 @@ export async function handleTasksRequest(request: Request) {
 export async function handleFocusRequest(request: Request) {
   if (request.method !== 'POST') return new Response('Method not allowed', { status: 405 })
   const input = await request.json() as { id: string; taskId: string; durationSeconds?: number }
+  if (!input.id || !input.taskId) return Response.json({ error: 'Session id and task id are required' }, { status: 400 })
   return Response.json(await createCompletedFocusSession(input), { status: 201 })
 }
