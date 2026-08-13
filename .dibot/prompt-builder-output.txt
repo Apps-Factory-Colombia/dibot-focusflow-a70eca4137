@@ -1,56 +1,45 @@
-Crea FocusFlow, una app móvil consumer de enfoque diario para personas que trabajan o estudian y necesitan convertir una intención en una sesión concreta. El objetivo es que, al abrirla, el usuario elija o vea una tarea principal, inicie un bloque de concentración de 25 minutos, gestione una lista breve de tareas y entienda su progreso del día sin fricción. La experiencia debe sentirse publicable, rápida, calmada y funcional; evita features de productividad innecesarias.
+PRODUCTO, USUARIOS Y OBJETIVO
+Construye FocusFlow, una app móvil de enfoque diario para personas que trabajan o estudian y necesitan convertir un día abrumador en una siguiente acción clara. La pantalla principal “Hoy” debe mostrar una tarea principal, un temporizador Pomodoro de 25 minutos, una lista breve de tareas y el progreso del día. Permite crear, completar y eliminar tareas, con persistencia real en Turso. Prioriza un vertical slice funcional, publicable y rápido de entender.
 
-## DIRECCIÓN VISUAL
+DIRECCIÓN VISUAL ÚNICA
+Usa una dirección original llamada “papel cálido + tinta carbón + lima eléctrica de energía”: fondo marfil cálido (#F7F4EC), superficies blancas, texto carbón, verde lima como acción/progreso y coral sobrio solo para errores o borrar. Contraste AA, bordes finos, cards de radio 18 px, botones de 52 px, sombras difusas muy bajas y tipografía sans legible con números tabulares para el timer. La pantalla debe sentirse serena, editorial y táctil, no como un clon de ninguna app. Usa progresos lineales/circulares simples, microanimaciones de entrada y transición suave al completar; evita gradientes decorativos, exceso de color, ilustraciones y gamificación ruidosa.
 
-Usa una sola dirección original: **“papel cálido + tinta carbón + lima de energía”**. Fondo marfil cálido (#F6F3EC), superficies blancas ligeramente cálidas, texto carbón, líneas gris piedra y un único acento lima/verde eléctrico para progreso, foco y acciones positivas. El contraste debe ser accesible, sobrio y optimista, no neón. Usa una sans geométrica muy legible para UI y números, con una serif editorial discreta solo para el saludo o una frase de intención. Define tokens semánticos para background, surface, elevated, text, muted, primary, accent, success, warning, danger, spacing y radius.
+REFERENCIAS VISUALES OBLIGATORIAS
+Antes de diseñar o programar, abre y analiza **todas** las imágenes de `references/mobbin/` y lee su `README.md`. Extrae la mayor cantidad posible de decisiones: color, contraste, tipografía, escala, espaciado, radios, elevación, navegación, cards, filtros, estados y movimiento. Usa esos hallazgos para tomar decisiones, pero no copies literalmente pantallas, textos, logos, marcas, assets ni layouts. Las referencias son composición y lenguaje visual, no una fuente de assets.
 
-Antes de diseñar o programar, **abre y analiza todas las imágenes de `references/mobbin/` y lee `references/mobbin/README.md`**. Extrae de ellas la mayor cantidad posible de decisiones sobre color, contraste, tipografía, escala, espaciado, radios, elevación, navegación, cards, filtros, estados y movimiento, pero abstrae el lenguaje: no copies literalmente ninguna pantalla, marca, logo, texto, asset o composición. Usa las referencias de Opal/Mindvalley para la lectura del progreso, Life Reset para la concentración del timer, Granola para controles táctiles y Gemini para la jerarquía de tareas.
+PANTALLAS Y FLUJO VERTICAL COMPLETO
+1. **Hoy (inicio):** safe area, saludo y fecha, indicador “X de Y completadas”, card destacada de tarea principal con checkbox y botón “Iniciar 25:00”, progreso del día, lista de 3–5 tareas con completar/eliminar y FAB o CTA “Nueva tarea”. Si no hay tareas, muestra empty state útil con “Crea tu primera tarea”.
+2. **Nueva tarea:** bottom sheet o pantalla modal con input de título obligatorio, selector opcional “Hacer principal”, prioridad/etiqueta simple, cancelar y guardar. Enfoca el teclado, valida título vacío y confirma success con toast o feedback inline.
+3. **Sesión de enfoque:** pantalla inmersiva con nombre de tarea, contador 25:00 grande, progreso circular o lineal, pausa/reanudar, cancelar y “Completar tarea”. Al llegar a cero muestra success, celebra con discreción y permite volver a Hoy.
+4. **Detalle/acciones de tarea:** menú contextual o sheet para marcar completa/incompleta y eliminar con confirmación. No ocultes acciones esenciales.
+5. **Resumen del día:** accesible desde el progreso o navegación secundaria; muestra minutos enfocados, sesiones completadas, tareas terminadas y lista de pendientes. Incluye estado vacío si aún no hay actividad.
+Mantén un flujo vertical corto: Hoy → Nueva tarea → Sesión → Success → Hoy. La navegación inferior puede tener Hoy activo y Resumen como segunda sección; no añadas secciones que no aporten al objetivo.
 
-## FLUJO VERTICAL COMPLETO
+INTERACCIONES Y ESTADOS
+Implementa crear, editar lo mínimo necesario, completar/descompletar, eliminar con confirmación y elegir tarea principal. El timer debe persistir su estado localmente durante recargas, actualizarse en tiempo real y soportar activo, pausado, cancelado y completado. Cada feature importante debe tener loading/skeleton, populated, empty, error/retry, submitting/disabled y success. Evita botones sin feedback. Usa toasts accesibles y aria-labels; confirma acciones destructivas. Si falla la red al guardar, conserva el borrador local y muestra retry sin perder datos.
 
-Construye primero para 390 px, con soporte real para 375–430 px, safe areas y controles táctiles de 44–56 px.
+RESPONSIVE Y NAVEGACIÓN MÓVIL
+Diseña primero para 390 px y verifica el rango 375–430 px. Usa safe areas, scroll correcto, controles táctiles de 44–56 px, teclado usable, CTA inferior fijo sin tapar contenido y bottom sheets que respeten el gesto de cierre. En anchos mayores amplía el lienzo con max-width, sin convertirlo en dashboard desktop. Respeta prefers-reduced-motion.
 
-1. **Hoy / home**: header con “Buenos días, [nombre opcional]”, fecha y avatar/menú mínimo. Hero “Tu foco de hoy” con una sola tarea principal, checkbox grande, prioridad y CTA “Enfocarme 25 min”. Si no existe tarea principal, muestra un empty state útil con “Elige una tarea para empezar” y CTA para crearla. Debajo, tarjeta del temporizador con estado “Listo para empezar”, progreso circular o anillo lineal y duración 25:00. Después, “Tareas de hoy” con lista breve, checkbox, título, etiqueta opcional y eliminar mediante swipe o menú; CTA “Añadir tarea”. Cierra con “Progreso del día”: sesiones completadas, minutos enfocados y barra de avance.
-2. **Crear tarea**: sheet o pantalla modal con formulario React Hook Form + Zod: título requerido, descripción opcional, selector de “hacer principal” y duración sugerida bloqueada a 25 minutos en MVP. Botón “Guardar tarea”, cancelar y teclado usable. Al guardar, volver a Hoy y actualizar el cache.
-3. **Temporizador activo**: pantalla inmersiva propia, sin fotografía. Timer grande 25:00, nombre de tarea, indicador de sesión, pausa/reanudar y “Terminar sesión”. Usa Motion con animación sutil del progreso, no decorativa. Confirmar antes de abandonar una sesión activa. Al llegar a 00:00, mostrar estado success con celebración contenida, minutos ganados y CTA “Marcar tarea completada” / “Volver a Hoy”.
-4. **Editar/completar/eliminar**: completar actualiza tarea y progreso de inmediato; editar reabre el formulario; eliminar pide confirmación y permite undo breve. Las tareas completadas quedan visibles en filtro Completed o bajo una sección colapsable.
-5. **Historial/progreso**: accesible desde una navegación inferior “Hoy” y “Progreso”. Mostrar resumen de hoy, sesiones recientes y una racha simple, con estados empty para una cuenta nueva. No conviertas esto en un dashboard complejo.
+COMPONENTES Y STACK DIBOT
+Conserva React + Vite + TypeScript + Bun + Tailwind, Base UI, Motion, Embla si hace falta, Phosphor Icons, React Router, Zustand, TanStack Query, React Hook Form, Zod, Drizzle ORM, `@libsql/client` y Turso/libSQL. No agregues otra UI framework ni reemplaces la arquitectura. Crea tokens semánticos para fondo, superficies, texto, primary, accent, estados, spacing y radios. Componentiza AppShell, TodayHeader, ProgressCard, FocusTaskCard, TaskRow, TaskComposer, FocusTimer, BottomNav, BottomSheet, Toast y EmptyState; mantén nombres y estilos coherentes.
 
-## INTERACCIONES Y ESTADOS
+API Y DATOS
+Usa TanStack Query para todo remoto y Zustand solo para estado local de UI/timer/borrador. Como hay persistencia real, define Drizzle + Turso en `api/db/schema.ts` y todas las rutas server-side dentro de `api/`; jamás expongas secretos ni uses `VITE_` para credenciales. Modela al menos tasks (id, title, isPrimary, completed, createdAt, completedAt) y focusSessions (id, taskId, durationSeconds, startedAt, completedAt, status). Implementa endpoints para listar tareas del día, crear, completar y eliminar, más crear/terminar sesiones; valida payloads con Zod. Usa `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN`, verifica `TURSO_DATABASE_ID` si reutilizas una base y ejecuta `bun run db:push` después del schema. No inventes persistencia en memoria como sustituto.
 
-Implementa loading skeleton para home/lista/progreso, submitting disabled con spinner en guardar, optimistic update seguro para completar, error de red con retry, error de validación inline, empty states para cero tareas/cero sesiones, populated state, confirmación de eliminar, success toast/banner al crear o completar, y estado offline comprensible si falla la API. El timer debe ser robusto ante pausa, background y retorno a la app: persiste start/end/pausedAt localmente y recalcula el tiempo restante, sin perder la sesión. Usa feedback haptics/visual solo si la plataforma lo permite y siempre con fallback.
+IMAGE PLAN
+No uses imágenes reales en este MVP: el producto mejora con tipografía, formas y progreso, no con fotografía. Usa iconografía Phosphor y superficies CSS. No descargues ni reutilices assets de Mobbin, marcas o apps de terceros.
 
-## NAVEGACIÓN Y RESPONSIVE
+CRITERIOS DE ACEPTACIÓN Y VALIDACIÓN
+- En 390 px se entiende Hoy en menos de cinco segundos y la tarea principal es la acción dominante.
+- Se pueden crear, completar y eliminar tareas y los cambios sobreviven a recarga mediante Turso.
+- El timer inicia en 25:00, cuenta correctamente, pausa/reanuda, cancela y registra success.
+- Progreso y resumen reflejan el estado real; loading, empty, error, submitting y success están diseñados.
+- Navegación, teclado, safe areas, foco, contraste y targets táctiles son usables.
+- No hay secretos en cliente, errores TypeScript ni componentes sin feedback.
+- Valida con `bun run build`; no sustituyas el stack ni dejes TODOs críticos.
 
-Usa React Router con dos rutas principales: `/` Hoy y `/progress` Progreso; modal/sheet para crear/editar y ruta o vista dedicada para `/focus`. Bottom navigation fija con dos destinos, respetando safe-area-inset-bottom. Mantén el CTA primario visible, evita scroll horizontal y comprueba que el teclado no tape inputs. A 390 px debe verse una pantalla equilibrada; en anchos mayores limita el contenido a una columna de lectura cómoda sin cambiar la jerarquía.
-
-## COMPONENTES Y STACK
-
-Conserva el stack Dibot existente: React + Vite + TypeScript + Bun + Tailwind, Base UI, Motion, Embla solo si realmente aporta, Phosphor Icons, React Router, Zustand, TanStack Query, React Hook Form, Zod, Drizzle ORM, `@libsql/client` y Turso/libSQL. No agregues otra UI framework ni reemplaces la arquitectura. Crea componentes pequeños y reutilizables: AppShell, BottomNav, TodayHeader, FocusTaskCard, TimerCard, FocusTimer, TaskList, TaskRow, TaskForm, ProgressSummary, EmptyState, ConfirmDialog y Toast. Usa iconografía Phosphor consistente, labels accesibles, focus states y aria-labels.
-
-## API Y DATOS
-
-Usa TanStack Query para todo dato remoto y Zustand solo para estado local efímero del timer, preferencias mínimas y UI. Como hay persistencia real, usa Drizzle + Turso/libSQL server-side. Todo acceso a base de datos vive en `api/`; nunca expongas `TURSO_AUTH_TOKEN`, `TURSO_PLATFORM_API_TOKEN` ni secretos con `VITE_`. Define en `api/db/schema.ts` tablas para `tasks` (id, title, description, isPrimary, completedAt, createdAt, updatedAt), `focus_sessions` (id, taskId, startedAt, endedAt, durationSeconds, status) y, si hace falta, una tabla mínima de preferencias. Añade endpoints server-side para listar tareas del día, crear, actualizar/completar y eliminar tareas, iniciar/finalizar sesiones y obtener el resumen de progreso. Valida payloads con Zod también en servidor, maneja errores y fechas en UTC, y actualiza/invalida queries tras mutaciones. Revisa las variables Turso según el contrato existente y, después de definir el schema, usa `bun run db:push` para sincronizar la base; no uses una base existente sin verificar su `TURSO_DATABASE_ID`.
-
-## IMAGE PLAN
-
-No uses fotografía ni ilustraciones reales en el MVP: la dirección “papel cálido + tinta + lima” funciona mejor con superficies, formas y Motion, mantiene el producto ligero y evita assets de terceros. Si el diseño necesita un fallback futuro para una ilustración de empty state, usa una ilustración geométrica generada en CSS/SVG local, no Mobbin ni marcas. No descargues ni reutilices assets de Mobbin, marcas o apps de terceros.
-
-## CRITERIOS DE ACEPTACIÓN
-
-- Un usuario puede crear, editar, completar y eliminar tareas, con persistencia real en Turso.
-- Puede seleccionar una tarea principal y empezar/pausar/reanudar/terminar un timer de 25 minutos sin perder estado al cambiar de vista o volver de background.
-- Hoy muestra siempre la tarea principal, lista breve, sesiones y progreso actualizado.
-- Progreso muestra datos reales y estados empty/loading/error.
-- Todas las mutaciones tienen feedback visual y manejo de errores; formularios validan correctamente.
-- La UI funciona y se siente intencional a 390 px, con navegación, safe areas, accesibilidad básica y controles táctiles adecuados.
-- Abre y estudia las seis referencias locales antes de diseñar; extrae decisiones visuales sin clonar.
-- Conserva la arquitectura Dibot y no introduce dependencias UI innecesarias.
-
-Valida tipos, rutas, interacción principal y responsive. Ejecuta `bun run build` como verificación final y corrige los errores de integración que aparezcan. No cierres una feature con mocks cuando deba usar API/Turso.
-
-## REGLA DE VELOCIDAD
-
-Trabaja con una dirección, un vertical slice y decisiones concretas. No hagas brainstorming, no presentes un plan largo y no abras direcciones visuales alternativas: implementa pronto la experiencia Hoy → tarea → foco → progreso.
+REGLA DE VELOCIDAD
+Elige esta única dirección visual y arquitectura. No hagas brainstorming, no presentes alternativas y no escribas un plan largo: implementa pronto el vertical slice completo, corrige solo lo necesario y termina con una app funcional.
 
 Usa las referencias de Mobbin para extraer el lenguaje visual, no para copiar pantallas o assets; crea una implementación original. Empieza a programar ahora.

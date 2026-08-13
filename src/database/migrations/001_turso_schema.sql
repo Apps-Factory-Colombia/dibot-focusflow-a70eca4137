@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS tasks (
   completed_at INTEGER,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL
+  ,completed INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS focus_sessions (

@@ -8,6 +8,7 @@ export const tasks = sqliteTable('tasks', {
   completedAt: integer('completed_at', { mode: 'timestamp_ms' }),
   createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp_ms' }).notNull(),
+  completed: integer('completed', { mode: 'boolean' }).notNull().default(false),
 })
 
 export const focusSessions = sqliteTable('focus_sessions', {
